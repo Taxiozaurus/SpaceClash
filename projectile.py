@@ -3,7 +3,7 @@ import pygame
 
 
 class Projectile:
-    def __init__(self, x1, y1, x2, y2, speed=6): # x1,y1 are starting point, x2y2 are aiming point
+    def __init__(self, x1, y1, x2, y2, speed=6, colour=(255, 255, 0)): # x1,y1 are starting point, x2y2 are aiming point
         difx = x2 - x1
         dify = y2 - y1
         a = math.sqrt(difx ** 2 + dify ** 2)
@@ -15,7 +15,7 @@ class Projectile:
         self.position = [x1, y1]
         self.direction = [difx / a * speed, dify / a * speed]
         self.base = pygame.Surface((2, 2))
-        self.base.fill((255, 255, 0))
+        self.base.fill(colour)
         self.surface = pygame.transform.rotate(self.base, self.angle)
 
     def move(self):

@@ -26,6 +26,7 @@ red = (255, 0, 0)
 blue = (0, 0, 255)
 
 explosion = pygame.image.load('assets/explosion.gif')
+tutorial = pygame.image.load('assets/tutorial.png')
 
 fontBig = pygame.font.Font('assets/font.ttf', 30)
 fontSmall = pygame.font.Font('assets/font.ttf', 20)
@@ -36,12 +37,14 @@ click = False
 frame = 0
 speed = difficulty / 5
 kills = 0
+rounds = 1
 
 # enemy data
-countdown = difficulty * 2
+countdown = rounds * 10
 spawn_cooldown = 100
 enemies = []
 exploded = []
+enemy_shot = []
 
 # powers
 power_ups = []
@@ -52,8 +55,8 @@ user_shot = []
 
 
 def reset():
-    global countdown, spawn_cooldown, kills, speed, enemies, power_ups, user_shot, exploded
-    countdown = difficulty * 2
+    global countdown, spawn_cooldown, kills, speed, enemies, power_ups, user_shot, exploded, enemy_shot
+    countdown = rounds * 10
     spawn_cooldown = 100
     kills = 0
     speed = difficulty / 5
@@ -61,6 +64,7 @@ def reset():
     power_ups = []
     user_shot = []
     exploded = []
+    enemy_shot = []
     user.speed = speed
 
 
@@ -73,12 +77,12 @@ def game_end():
 
 def pickup_drop(x, y):
     chance = random.randint(0, 100)
-    if chance > 90:
-        power_ups.append(powers.Health(x, y))
-    elif chance > 70:
-        power_ups.append(powers.Shield(x, y))
-    elif chance >= 99:
+    if chance > 99 and rounds % 3 == 0:
         power_ups.append(powers.Life(x, y))
+    elif chance > 90:
+        power_ups.append(powers.Health(x, y))
+    elif chance >= 70:
+        power_ups.append(powers.Shield(x, y))
 
 
 def spawn_enemy():
@@ -88,23 +92,26 @@ def spawn_enemy():
             spawn_cooldown -= 1
         else :
             spawn_cooldown = 20
-            enemies.append(enemy.Enemy01(speed / 2))
+            if not countdown % 5 == 0:
+                enemies.append(enemy.Enemy01(speed / 2))
+            else :
+                enemies.append(enemy.Enemy02(speed / 2))
             countdown -= 1
 
 
 def overlay():
-    global kills, speed
-    txt = fontSmall.render(str(speed), True, green, black)
-    trc = txt.get_rect()
-    trc.topleft = (5, 5)
-    window.blit(txt, trc)
 
-    base = pygame.Rect(0, 600, 600, 50)
+    base = pygame.Rect(0, 590, 600, 60)
     pygame.draw.rect(window, d_grey, base)
 
-    txt = fontSmall.render("kills: " + str(kills) + "/" + str(difficulty * 2), True, green, d_grey)
+    txt = fontSmall.render("round: " + str(rounds), True, green, d_grey)
     trc = txt.get_rect()
-    trc.topleft = (5, 615)
+    trc.topleft = (5, 600)
+    window.blit(txt, trc)
+
+    txt = fontSmall.render("kills: " + str(kills) + "/" + str(rounds * 10), True, green, d_grey)
+    trc = txt.get_rect()
+    trc.topleft = (5, 625)
     window.blit(txt, trc)
 
     txt = fontSmall.render("health: " + str(user.health), True, red, d_grey)
@@ -114,21 +121,20 @@ def overlay():
 
     txt = fontSmall.render("shield: " + str(user.shield), True, blue, d_grey)
     trc = txt.get_rect()
-    trc.topleft = (350, 615)
+    trc.topleft = (360, 615)
     window.blit(txt, trc)
 
     h = pygame.Rect(250, 605, user.health, 5)
     pygame.draw.rect(window, red, h)
 
-    s = pygame.Rect(350, 605, user.shield, 5)
+    s = pygame.Rect(250, 599, user.shield, 5)
     pygame.draw.rect(window, blue, s)
 
 
 def game():
     global frame, kills
     rendered = user.render(mousex, mousey)
-
-    if rendered[0] > 0 :
+    if user.health > 0:
 
         if click :
             user_shot.append(projectile.Projectile(rendered[1].centerx, rendered[1].centery, mousex, mousey, speed * 2))
@@ -160,22 +166,38 @@ def game():
             if enemies[i].health > 0:
                 coord = enemies[i].move(rendered[1].centerx, rendered[1].centery)
                 window.blit(coord[0], coord[1])
+                if enemies[i].name == "fighter":
+                    if enemies[i].cooldown < 1:
+                        enemies[i].cooldown = 20
+                        enemy_shot.append(projectile.Projectile(coord[1].centerx, coord[1].centery, rendered[1].centerx, rendered[1].centery, speed * 1.5, red))
             else :
                 exploded.append(powers.Placeholder(explosion, enemies[i].base))
                 kills += 1
                 pickup_drop(enemies[i].base.x, enemies[i].base.y)
                 enemies.pop(i)
 
+        for i in range(len(enemy_shot)-1, -1, -1):
+            coord = enemy_shot[i].move()
+            window.blit(coord[1], coord[0])
+            if coord[0].colliderect(user.base):
+                user.damage_taken(10)
+                enemy_shot.pop(i)
+
 
         pressed = pygame.key.get_pressed()
+        user.re_draw()
         if pressed[pygame.K_w] or pressed[pygame.K_UP]:
             user.move_up()
+            user.re_draw(True)
         if pressed[pygame.K_a] or pressed[pygame.K_LEFT] :
             user.move_left()
+            user.re_draw(True)
         if pressed[pygame.K_s] or pressed[pygame.K_DOWN] :
             user.move_down()
+            user.re_draw(True)
         if pressed[pygame.K_d] or pressed[pygame.K_RIGHT] :
             user.move_right()
+            user.re_draw(True)
 
         spawn_enemy()
         user.player_collision(power_ups, enemies)
@@ -185,24 +207,29 @@ def game():
                 power_ups.pop(i)
 
         overlay()
-        if kills >= difficulty * 2:
+        if kills >= rounds * 10:
             frame = 2
-    elif rendered[0] == -1 :
+    elif user.lives > 0 :
+        user.lives -= 1
+        frame = 3
         user.reset()
         reset()
     else :
         game_end()
+        print "game ended"
 
 
 def menu():
     global frame, mousex, mousey
-    play = fontBig.render("PLAY", True, green, black)
+    play = fontBig.render("PLAY", True, black, green)
     base = play.get_rect()
-    base.center = (300, 100)
+    base.center = (500, 550)
 
     window.blit(play, base)
     if base.collidepoint(mousex, mousey) and click:
         frame = 1
+
+    window.blit(tutorial, (0, 0))
 
 while True:
     mousex, mousey = pygame.mouse.get_pos()
@@ -213,10 +240,39 @@ while True:
     elif frame == 1:
         game()
     elif frame == 2:
-        frame = 1
-        if difficulty < 60:
-            difficulty += 5
-        reset()
+        txt = fontSmall.render("level finished", True, green, black)
+        trc = txt.get_rect()
+        trc.center = (300, 250)
+        window.blit(txt, trc)
+
+        txt = fontBig.render("Continue", True, black, green)
+        trc = txt.get_rect()
+        trc.center = (300, 300)
+        window.blit(txt, trc)
+
+        if trc.collidepoint(mousex, mousey) and click:
+            frame = 1
+            rounds += 1
+            if difficulty < 60:
+                difficulty += 5
+            reset()
+    elif frame == 3: #you died sequence
+        txt = fontSmall.render("You died, lives left: " + str(user.lives), True, green, black)
+        trc = txt.get_rect()
+        trc.center = (300, 250)
+        window.blit(txt, trc)
+
+        txt = fontBig.render("Continue", True, black, green)
+        trc = txt.get_rect()
+        trc.center = (300, 300)
+        window.blit(txt, trc)
+
+        if trc.collidepoint(mousex, mousey) and click:
+            frame = 1
+            if difficulty < 60:
+                difficulty += 5
+            reset()
+
 
     for event in pygame.event.get() :
         if event.type == QUIT :
