@@ -89,17 +89,18 @@ def pickup_drop(x, y):
 
 
 def spawn_enemy():
-    global spawn_cooldown, countdown
-    if len(enemies) < difficulty and countdown > 0:
-        if spawn_cooldown > 0 :
-            spawn_cooldown -= 1
-        else :
-            spawn_cooldown = 20
-            if not countdown % 5 == 0:
-                enemies.append(enemy.Enemy01(speed / 2))
+    global spawn_cooldown, countdown, enemies
+    if countdown > 0:
+        if len(enemies) <= difficulty:
+            if spawn_cooldown > 0 :
+                spawn_cooldown -= 1
             else :
-                enemies.append(enemy.Enemy02(speed / 2))
-            countdown -= 1
+                spawn_cooldown = 20
+                if not countdown % 5 == 0:
+                    enemies.append(enemy.Enemy01(speed / 2))
+                else :
+                    enemies.append(enemy.Enemy02(speed / 2))
+                countdown -= 1
 
 
 def overlay():
@@ -140,51 +141,54 @@ def game():
     if user.health > 0:
 
         if click :
-            user_shot.append(projectile.Projectile(rendered[1].centerx, rendered[1].centery, mousex, mousey, speed * 2))
-
-        for i in range(0, len(exploded)):
-            if exploded[i].time > 0:
-                window.blit(exploded[i].image, exploded[i].rect)
-                exploded[i].time -= 1
-        for i in range(len(exploded)-1, -1, -1):
-            if exploded[i].time == 0:
-                exploded.pop(i)
+            user_shot.append(projectile.Projectile(rendered[1].centerx, rendered[1].centery, mousex, mousey, speed * 2, red))
+        if len(exploded) > 0:
+            for i in range(0, len(exploded)):
+                if exploded[i].time > 0:
+                    window.blit(exploded[i].image, exploded[i].rect)
+                    exploded[i].time -= 1
+            for i in range(len(exploded)-1, -1, -1):
+                if exploded[i].time == 0:
+                    exploded.pop(i)
 
         window.blit(rendered[0], rendered[1])
 
-        for i in range(len(user_shot)-1, -1, -1) :
-            coord = user_shot[i].move()
-            window.blit(coord[1], coord[0])
-            enemy_hit = -1
-            for a in range(0, len(enemies)) :
-                if coord[0].colliderect(enemies[a].base):
-                    enemy_hit = a
-            if enemy_hit >= 0:
-                user_shot.pop(i)
-                enemies[enemy_hit].damage_taken(50)
-            if not -50 < coord[0].centerx < 600 or not -50 < coord[0].centery < 600 :
-                user_shot.pop(i)
+        if len(user_shot) > 0:
+            for i in range(len(user_shot)-1, -1, -1) :
+                coord = user_shot[i].move()
+                window.blit(coord[1], coord[0])
+                enemy_hit = -1
+                for a in range(0, len(enemies)) :
+                    if coord[0].colliderect(enemies[a].base):
+                        enemy_hit = a
+                if enemy_hit >= 0:
+                    user_shot.pop(i)
+                    enemies[enemy_hit].damage_taken(50)
+                if not -50 < coord[0].centerx < 600 or not -50 < coord[0].centery < 600 :
+                    user_shot.pop(i)
 
-        for i in range(len(enemies)-1, -1, -1) :
-            if enemies[i].health > 0:
-                coord = enemies[i].move(rendered[1].centerx, rendered[1].centery)
-                window.blit(coord[0], coord[1])
-                if enemies[i].name == "fighter":
-                    if enemies[i].cooldown < 1:
-                        enemies[i].cooldown = 20
-                        enemy_shot.append(projectile.Projectile(coord[1].centerx, coord[1].centery, rendered[1].centerx, rendered[1].centery, speed * 1.5, red))
-            else :
-                exploded.append(powers.Placeholder(explosion, enemies[i].base))
-                kills += 1
-                pickup_drop(enemies[i].base.x, enemies[i].base.y)
-                enemies.pop(i)
+        if len(enemies) > 0:
+            for i in range(len(enemies)-1, -1, -1) :
+                if enemies[i].health > 0:
+                    coord = enemies[i].move(rendered[1].centerx, rendered[1].centery)
+                    window.blit(coord[0], coord[1])
+                    if enemies[i].name == "fighter":
+                        if enemies[i].cooldown < 1:
+                            enemies[i].cooldown = 20
+                            enemy_shot.append(projectile.Projectile(coord[1].centerx, coord[1].centery, rendered[1].centerx, rendered[1].centery, speed * 1.5))
+                else :
+                    exploded.append(powers.Placeholder(explosion, enemies[i].base))
+                    kills += 1
+                    pickup_drop(enemies[i].base.x, enemies[i].base.y)
+                    enemies.pop(i)
 
-        for i in range(len(enemy_shot)-1, -1, -1):
-            coord = enemy_shot[i].move()
-            window.blit(coord[1], coord[0])
-            if coord[0].colliderect(user.base):
-                user.damage_taken(10)
-                enemy_shot.pop(i)
+        if len(enemy_shot) > 0:
+            for i in range(len(enemy_shot)-1, -1, -1):
+                coord = enemy_shot[i].move()
+                window.blit(coord[1], coord[0])
+                if coord[0].colliderect(user.base):
+                    user.damage_taken(10)
+                    enemy_shot.pop(i)
 
         pressed = pygame.key.get_pressed()
         user.re_draw()
@@ -240,7 +244,7 @@ while True:
     mousex, mousey = pygame.mouse.get_pos()
     window.fill((0, 0, 0))
     window.blit(background, (0, 0))
-    if user.health < 20:
+    if user.health <= 25:
         window.blit(critical, (0, 0))
 
     if frame == 0:

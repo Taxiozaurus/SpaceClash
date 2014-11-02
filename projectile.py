@@ -14,7 +14,7 @@ class Projectile:
         self.speed = speed
         self.position = [x1, y1]
         self.direction = [difx / a * speed, dify / a * speed]
-        self.base = pygame.Surface((2, 2))
+        self.base = pygame.Surface((3, 3))
         self.base.fill(colour)
         self.surface = pygame.transform.rotate(self.base, self.angle)
 
@@ -24,5 +24,5 @@ class Projectile:
         return self.render() # this way you need to call only "move" to get both updated position and get the right projectile
 
     def render(self):
-        base_rect = pygame.Rect(int(self.position[0]), int(self.position[1]), 2, 2)
+        base_rect = pygame.Rect(int(self.position[0]), int(self.position[1]), 3, 3)
         return base_rect, self.surface
