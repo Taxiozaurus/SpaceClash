@@ -27,6 +27,8 @@ blue = (0, 0, 255)
 
 explosion = pygame.image.load('assets/explosion.gif')
 tutorial = pygame.image.load('assets/tutorial.png')
+background = pygame.image.load('assets/background.png')
+critical = pygame.image.load('assets/critical.png')
 
 fontBig = pygame.font.Font('assets/font.ttf', 30)
 fontSmall = pygame.font.Font('assets/font.ttf', 20)
@@ -234,13 +236,16 @@ def menu():
 while True:
     mousex, mousey = pygame.mouse.get_pos()
     window.fill((0, 0, 0))
+    window.blit(background, (0, 0))
+    if user.health < 20:
+        window.blit(critical, (0, 0))
 
     if frame == 0:
         menu()
     elif frame == 1:
         game()
     elif frame == 2:
-        txt = fontSmall.render("level finished", True, green, black)
+        txt = fontSmall.render("level finished", True, green)
         trc = txt.get_rect()
         trc.center = (300, 250)
         window.blit(txt, trc)
@@ -256,13 +261,13 @@ while True:
             if difficulty < 60:
                 difficulty += 5
             reset()
-    elif frame == 3: #you died sequence
-        txt = fontSmall.render("You died, lives left: " + str(user.lives), True, green, black)
+    elif frame == 3: # you died sequence
+        txt = fontSmall.render("You died, lives left: " + str(user.lives), True, red)
         trc = txt.get_rect()
         trc.center = (300, 250)
         window.blit(txt, trc)
 
-        txt = fontBig.render("Continue", True, black, green)
+        txt = fontBig.render("Continue", True, black, red)
         trc = txt.get_rect()
         trc.center = (300, 300)
         window.blit(txt, trc)
@@ -272,7 +277,6 @@ while True:
             if difficulty < 60:
                 difficulty += 5
             reset()
-
 
     for event in pygame.event.get() :
         if event.type == QUIT :
