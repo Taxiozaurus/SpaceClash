@@ -80,11 +80,11 @@ def game_end():
 
 def pickup_drop(x, y):
     chance = random.randint(0, 100)
-    if chance > 90 and rounds % 3 == 0:
+    if chance > 99 and rounds % 3 == 0:
         power_ups.append(powers.Life(x, y))
-    elif chance > 60:
+    elif chance >= 90:
         power_ups.append(powers.Health(x, y))
-    elif chance >= 10:
+    elif chance >= 60:
         power_ups.append(powers.Shield(x, y))
 
 
@@ -211,7 +211,6 @@ def game():
         overlay()
         if kills >= rounds * 10:
             wait -= 1
-            print wait
         if kills >= rounds * 10 and wait < 1:
             frame = 2
             wait = 250
