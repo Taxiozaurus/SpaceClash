@@ -40,6 +40,7 @@ frame = 0
 speed = difficulty / 5
 kills = 0
 rounds = 1
+wait = 250
 
 # enemy data
 countdown = rounds * 10
@@ -79,11 +80,11 @@ def game_end():
 
 def pickup_drop(x, y):
     chance = random.randint(0, 100)
-    if chance > 99 and rounds % 3 == 0:
+    if chance > 90 and rounds % 3 == 0:
         power_ups.append(powers.Life(x, y))
-    elif chance > 90:
+    elif chance > 60:
         power_ups.append(powers.Health(x, y))
-    elif chance >= 70:
+    elif chance >= 10:
         power_ups.append(powers.Shield(x, y))
 
 
@@ -134,7 +135,7 @@ def overlay():
 
 
 def game():
-    global frame, kills
+    global frame, kills, wait
     rendered = user.render(mousex, mousey)
     if user.health > 0:
 
@@ -185,7 +186,6 @@ def game():
                 user.damage_taken(10)
                 enemy_shot.pop(i)
 
-
         pressed = pygame.key.get_pressed()
         user.re_draw()
         if pressed[pygame.K_w] or pressed[pygame.K_UP]:
@@ -210,7 +210,11 @@ def game():
 
         overlay()
         if kills >= rounds * 10:
+            wait -= 1
+            print wait
+        if kills >= rounds * 10 and wait < 1:
             frame = 2
+            wait = 250
     elif user.lives > 0 :
         user.lives -= 1
         frame = 3
