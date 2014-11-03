@@ -38,12 +38,14 @@ critical = pygame.image.load('assets/critical.png')
 fontBig = pygame.font.Font('assets/font.ttf', 30)
 fontSmall = pygame.font.Font('assets/font.ttf', 20)
 
+hiscore = [0, 0] # rounds / kills
 difficulty = 15 # how many enemies are allowed to be on screen simultaneously also is used to get of how much speed is allowed for enemies by shoveling some random monkeys to run a marathon as well this will control your speed
 mousex, mousey = 0, 0
 click = False
 frame = 0
 speed = difficulty / 5
 kills = 0
+total_kills = 0
 rounds = 1
 wait = 250
 
@@ -78,6 +80,10 @@ def reset():
 
 def game_end():
     global frame
+    if rounds > hiscore[0]:
+        hiscore[0] = rounds
+    if total_kills > hiscore[1]:
+        hiscore[1] = total_kills
     reset()
     user.reset(True)
     frame = 0
@@ -141,8 +147,9 @@ def overlay():
 
 
 def game():
-    global frame, kills, wait
+    global frame, kills, wait, total_kills
     rendered = user.render(mousex, mousey)
+    window.blit(background, (0, 0))
     if user.health > 0:
         if user.health <= 25:
             window.blit(critical, (0, 0))
@@ -184,6 +191,11 @@ def game():
                             enemies[i].cooldown = 20
                             enemy_shot.append(projectile.Projectile(coord[1].centerx, coord[1].centery, rendered[1].centerx, rendered[1].centery, speed * 1.5))
                 else :
+                    total_kills += 1
+                    if enemies[i].name == "fighter":
+                        total_kills += 1
+                    elif enemies[i].name == "boss":
+                        total_kills += 9
                     exploded.append(powers.Placeholder(explosion, enemies[i].base))
                     kills += 1
                     pickup_drop(enemies[i].base.x, enemies[i].base.y)
@@ -233,7 +245,6 @@ def game():
         reset()
     else :
         game_end()
-        print "game ended"
 
 
 def menu():
@@ -247,11 +258,17 @@ def menu():
         frame = 1
 
     window.blit(tutorial, (0, 0))
+    scores = fontSmall.render('this game session:', True, red)
+    window.blit(scores, (15, 600))
+    scores = fontSmall.render('max rounds: ' + str(hiscore[0]), True, green)
+    window.blit(scores, (15, 616))
+    scores = fontSmall.render('max kills: ' + str(hiscore[1]), True, green)
+    window.blit(scores, (200, 616))
+
 
 while True:
     mousex, mousey = pygame.mouse.get_pos()
     window.fill((0, 0, 0))
-    window.blit(background, (0, 0))
 
     if frame == 0:
         menu()
