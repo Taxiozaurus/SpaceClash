@@ -79,11 +79,14 @@ def reset():
 
 
 def game_end():
-    global frame
+    global frame, total_kills, rounds, difficulty
     if rounds > hiscore[0]:
         hiscore[0] = rounds
     if total_kills > hiscore[1]:
         hiscore[1] = total_kills
+    total_kills = 0
+    rounds = 0
+    difficulty = 15
     reset()
     user.reset(True)
     frame = 0
