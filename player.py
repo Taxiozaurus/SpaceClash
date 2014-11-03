@@ -33,7 +33,7 @@ class Player:
             self.base.centery -= self.speed
 
     def move_down(self):
-        if self.base.centery <= 556 :
+        if self.base.centery <= 566 :
             self.base.centery += self.speed
 
     def move_left(self):
@@ -41,7 +41,7 @@ class Player:
             self.base.centerx -= self.speed
 
     def move_right(self):
-        if self.base.centerx <= 556 :
+        if self.base.centerx <= 566 :
             self.base.centerx += self.speed
 
     def damage_taken(self, dmg):
@@ -56,7 +56,7 @@ class Player:
 
     def player_collision(self, powers, enemy):
         power = -1
-        for i in range(0, len(powers)):
+        for i in range(len(powers)-1, -1, -1):
             if self.base.colliderect(powers[i].base):
                 power = i
                 break
@@ -69,8 +69,8 @@ class Player:
             elif powers[power].name == "shield" and self.shield < 200:
                 self.shield += 20
                 powers.pop(power)
-                if self.shield > 250:
-                    self.shield = 250
+                if self.shield > 200:
+                    self.shield = 200
             elif powers[power].name == "life" :
                 self.lives += 1
                 powers.pop(power)

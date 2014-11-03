@@ -13,8 +13,9 @@ import powers
 from pygame.locals import *
 
 pygame.init()
-
-window = pygame.display.set_mode((600, 650))
+pygame.mixer.init()
+window_base = pygame.display.set_mode((600, 650))
+window = pygame.Surface((600, 650))
 pygame.display.set_caption('Space Clash')
 frameRate = pygame.time.Clock()
 ##################################################################################################
@@ -24,6 +25,10 @@ black = (0, 0, 0)
 d_grey = (80, 80, 80)
 red = (255, 0, 0)
 blue = (0, 0, 255)
+
+pygame.mixer.music.load('assets/sound/bgm.ogg')
+kaboom = pygame.mixer.Sound('assets/sound/explosion.wav')
+pygame.mixer.music.play(-1)
 
 explosion = pygame.image.load('assets/explosion.gif')
 tutorial = pygame.image.load('assets/tutorial.png')
@@ -139,6 +144,8 @@ def game():
     global frame, kills, wait
     rendered = user.render(mousex, mousey)
     if user.health > 0:
+        if user.health <= 25:
+            window.blit(critical, (0, 0))
 
         if click :
             user_shot.append(projectile.Projectile(rendered[1].centerx, rendered[1].centery, mousex, mousey, speed * 2, red))
@@ -181,6 +188,7 @@ def game():
                     kills += 1
                     pickup_drop(enemies[i].base.x, enemies[i].base.y)
                     enemies.pop(i)
+                    kaboom.play()
 
         if len(enemy_shot) > 0:
             for i in range(len(enemy_shot)-1, -1, -1):
@@ -244,8 +252,6 @@ while True:
     mousex, mousey = pygame.mouse.get_pos()
     window.fill((0, 0, 0))
     window.blit(background, (0, 0))
-    if user.health <= 25:
-        window.blit(critical, (0, 0))
 
     if frame == 0:
         menu()
@@ -294,5 +300,6 @@ while True:
         if event.type == MOUSEBUTTONUP :
             click = False
 
+    window_base.blit(window, (0, 0))
     pygame.display.update()
     frameRate.tick(60)
