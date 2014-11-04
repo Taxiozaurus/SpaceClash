@@ -46,7 +46,7 @@ frame = 0
 speed = difficulty / 5
 kills = 0
 total_kills = 0
-rounds = 10
+rounds = 1
 wait = 250
 
 # enemy data
