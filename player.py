@@ -26,7 +26,7 @@ class Player:
         self.health = 100
         self.shield = 0
         if full:
-            self.lives = 5
+            self.lives = 2
 
     def move_up(self):
         if self.base.centery >= 24 :

@@ -85,7 +85,7 @@ def game_end():
     if total_kills > hiscore[1]:
         hiscore[1] = total_kills
     total_kills = 0
-    rounds = 0
+    rounds = 1
     difficulty = 15
     reset()
     user.reset(True)
