@@ -114,7 +114,7 @@ class Enemy02:
 
 
 class Boss01:
-    def __init__(self, speed=1):
+    def __init__(self, speed=1, multi = 1):
         self.name = "Boss Fighter"
         self.speed = speed
         self.cooldown = 30
@@ -124,7 +124,7 @@ class Boss01:
         self.surface = pygame.Surface((64, 64), SRCALPHA)
         self.image = pygame.image.load('assets/boss_01.png')
         self.surface.blit(self.image, (0, 0))
-        self.health = 10000
+        self.health = 1000 * multi
         self.count = 0
         self.dir = 0
         self.wp = [(50, 150), (284, 60), (114, 150)]
@@ -132,8 +132,8 @@ class Boss01:
 
     def calculate(self):
         self.bullets = []
-        for i in range(0, 45):
-            ta = i * 8
+        for i in range(0, 60):
+            ta = i * 6
             self.bullets.append((self.base.centerx, self.base.centery, self.base.centerx + math.cos(ta), self.base.centery + math.sin(ta)))
         return self.bullets
 
