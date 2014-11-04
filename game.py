@@ -110,11 +110,16 @@ def spawn_enemy():
                 spawn_cooldown -= 1
             else :
                 spawn_cooldown = 20
-                if not countdown % 5 == 0:
-                    enemies.append(enemy.Enemy01(speed / 2))
-                else :
-                    enemies.append(enemy.Enemy02(speed / 2))
-                countdown -= 1
+                if rounds > 5 and rounds % 10 == 0 and countdown == 1:
+                    if len(enemies) < 2:
+                        enemies.append(enemy.Boss01())
+                        countdown -= 1
+                else:
+                    if not countdown % 5 == 0:
+                        enemies.append(enemy.Enemy01(speed / 2))
+                    else :
+                        enemies.append(enemy.Enemy02(speed / 2))
+                    countdown -= 1
 
 
 def overlay():
@@ -193,6 +198,13 @@ def game():
                         if enemies[i].cooldown < 1:
                             enemies[i].cooldown = 20
                             enemy_shot.append(projectile.Projectile(coord[1].centerx, coord[1].centery, rendered[1].centerx, rendered[1].centery, speed * 1.5))
+                    if enemies[i].name == "Boss Fighter":
+                        if enemies[i].cooldown < 1:
+                            enemies[i].cooldown = 40
+                            emi = enemies[i].calculate()
+                            for a in range(len(emi)-1, -1, -1):
+                                enemy_shot.append(projectile.Projectile(emi[a][0], emi[a][1], emi[a][2], emi[a][3], speed * 1.5))
+                                emi.pop(a)
                 else :
                     total_kills += 1
                     if enemies[i].name == "fighter":

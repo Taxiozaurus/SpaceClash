@@ -10,7 +10,7 @@ class Player:
         self.base = pygame.Rect(0, 0, 38, 38)
         self.surface = pygame.Surface((38, 50), SRCALPHA)
         self.surface.blit(self.image, self.base)
-        self.lives = 5
+        self.lives = 2
         self.health = 100
         self.shield = 0
         self.angle = 0

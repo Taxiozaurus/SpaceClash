@@ -89,7 +89,7 @@ class Enemy02:
         self.cooldown -= 1
         self.count -= 1
         if self.count <= 1:
-            self.count = 100
+            self.count = 50
             self.dir = random.randint(0, 8)
         difx = self.wp[self.dir][0] - self.x
         dify = self.wp[self.dir][1] - self.y
@@ -111,3 +111,49 @@ class Enemy02:
 
         temp_surface = pygame.transform.rotate(self.surface, self.angle)
         return temp_surface, self.base
+
+
+class Boss01:
+    def __init__(self, speed=1):
+        self.name = "Boss Fighter"
+        self.speed = speed
+        self.cooldown = 30
+        self.x = 284
+        self.y = -100
+        self.base = pygame.Rect(self.x, self.y, 64, 64)
+        self.surface = pygame.Surface((64, 64), SRCALPHA)
+        self.image = pygame.image.load('assets/boss_01.png')
+        self.surface.blit(self.image, (0, 0))
+        self.health = 10000
+        self.count = 0
+        self.dir = 0
+        self.wp = [(50, 150), (284, 60), (114, 150)]
+        self.bullets = []
+
+    def calculate(self):
+        self.bullets = []
+        for i in range(0, 45):
+            ta = i * 8
+            self.bullets.append((self.base.centerx, self.base.centery, self.base.centerx + math.cos(ta), self.base.centery + math.sin(ta)))
+        return self.bullets
+
+    def damage_taken(self, dmg):
+        self.health -= dmg
+
+    def move(self, x, y):
+        self.cooldown -= 1
+        self.count -= 1
+        if self.count < 1:
+            self.count = 50
+            self.dir = random.randint(0, 2)
+        difx = self.wp[self.dir][0] - self.x
+        dify = self.wp[self.dir][1] - self.y
+        a = math.sqrt(difx ** 2 + dify ** 2)
+        mov_x = difx / a * self.speed
+        mov_y = dify / a * self.speed
+        self.x += mov_x
+        self.y += mov_y
+        self.base.x = self.x
+        self.base.y = self.y
+
+        return self.surface, self.base
