@@ -112,7 +112,7 @@ def spawn_enemy():
                 spawn_cooldown = 20
                 if rounds > 5 and rounds % 10 == 0 and countdown == 1:
                     if len(enemies) < 2:
-                        enemies.append(enemy.Boss01(speed / 5, rounds))
+                        enemies.append(enemy.Boss01(2, rounds))
                         countdown -= 1
                 else:
                     if not countdown % 5 == 0:
@@ -200,10 +200,10 @@ def game():
                             enemy_shot.append(projectile.Projectile(coord[1].centerx, coord[1].centery, rendered[1].centerx, rendered[1].centery, speed * 1.5))
                     if enemies[i].name == "Boss Fighter":
                         if enemies[i].cooldown < 1:
-                            enemies[i].cooldown = 20
+                            enemies[i].cooldown = 40
                             emi = enemies[i].calculate()
                             for a in range(len(emi)-1, -1, -1):
-                                enemy_shot.append(projectile.Projectile(emi[a][0], emi[a][1], emi[a][2], emi[a][3], speed))
+                                enemy_shot.append(projectile.Projectile(emi[a][0], emi[a][1], emi[a][2], emi[a][3], speed, (255, 255, 0), 8, 5))
                                 emi.pop(a)
                 else :
                     total_kills += 1
@@ -303,7 +303,7 @@ while True:
         if trc.collidepoint(mousex, mousey) and click:
             frame = 1
             rounds += 1
-            if difficulty < 60:
+            if difficulty < 35:
                 difficulty += 5
             reset()
     elif frame == 3: # you died sequence

@@ -127,7 +127,7 @@ class Boss01:
         self.health = 1000 * multi
         self.count = 0
         self.dir = 0
-        self.wp = [(50, 150), (284, 60), (114, 150)]
+        self.wp = [(50, 150), (284, 60), (7964, 150)]
         self.bullets = []
 
     def calculate(self):
@@ -149,11 +149,12 @@ class Boss01:
         difx = self.wp[self.dir][0] - self.x
         dify = self.wp[self.dir][1] - self.y
         a = math.sqrt(difx ** 2 + dify ** 2)
-        mov_x = difx / a * self.speed
-        mov_y = dify / a * self.speed
-        self.x += mov_x
-        self.y += mov_y
-        self.base.x = self.x
-        self.base.y = self.y
+        if a != 0:
+            mov_x = difx / a * self.speed
+            mov_y = dify / a * self.speed
+            self.x += mov_x
+            self.y += mov_y
+            self.base.x = self.x
+            self.base.y = self.y
 
         return self.surface, self.base
